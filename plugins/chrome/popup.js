@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusId = document.createElement("p");
         statusId.textContent = `Status ID: ${tweet.status_id}`;
 
+        const interacted = document.createElement("p");
+        interacted.textContent = `Interacted: ${tweet.interacted}`;
+
         const lastSeen = document.createElement("p");
         lastSeen.textContent = `Last Seen: ${tweet.last_seen}`;
 
@@ -34,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         seenAt.textContent = `URL seen on: ${tweet.seen_at}`;
 
         tweetItem.appendChild(author);
+        tweetItem.appendChild(interacted);
         tweetItem.appendChild(statusId);
         tweetItem.appendChild(lastSeen);
         tweetItem.appendChild(content);
@@ -47,9 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
+        if (tweet.video_poster) {
+          const poster = document.createElement("img");
+          poster.src = tweet.video_poster;
+          tweetItem.appendChild(poster);
+        }
+
+        if (tweet.external_link) {
+          const externalLink = document.createElement("p");
+          externalLink.textContent = `External link: ${tweet.external_link}`;
+        }
+
         tweetsList.appendChild(tweetItem);
       });
     }
+    chrome.runtime.sendMessage({ action: "clearNewTweetCount" }); // Clear the new tweet count
   }
 
   // Function to clear stored data
@@ -68,4 +84,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const tweets = response.tweets || [];
     renderTweets(tweets);
   });
+});
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "updateBadge") {
+    const newTweetCount = message.newTweetCount;
+    chrome.action.setBadgeText({
+      text: newTweetCount > 0 ? newTweetCount.toString() : "",
+    });
+    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
+  }
 });

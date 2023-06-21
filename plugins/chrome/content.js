@@ -27,12 +27,31 @@ function getTweetContent(article) {
 function getImageUrls(article) {
   const imageElements = article.querySelectorAll('div[aria-label="Image"] img');
   if (imageElements.length > 0) {
-    const imageUrlArray = Array.from(imageElements).map((imageElement) => imageElement.src);
+    const imageUrlArray = Array.from(imageElements).map(
+      (imageElement) => imageElement.src
+    );
     return imageUrlArray;
   }
   return [];
 }
 
+function getVideoPoster(article) {
+  const videoElement = article.querySelector("video");
+  if (videoElement) {
+    return videoElement.poster;
+  } else {
+    return "";
+  }
+}
+
+function getExternalLink(article) {
+  const linkElement = article.querySelector('[data-testid*="card"] a');
+  if (linkElement) {
+    return linkElement.href;
+  } else {
+    return "";
+  }
+}
 
 // Function to send a message to the background script
 function sendMessageToBackgroundScript(message) {
@@ -41,23 +60,38 @@ function sendMessageToBackgroundScript(message) {
   });
 }
 
+function addDebugging(element) {
+  element.style.border = "2px solid red";
+}
+
 // Create a new Intersection Observer instance
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const article = entry.target;
-        const timeElement = article.querySelector("time");
 
-        if (timeElement) {
-          const linkElement = timeElement.parentElement;
-          const hrefValue = linkElement.getAttribute("href");
+        const timeElements = article.querySelectorAll("time");
+        const hrefArray = [];
+
+        if (timeElements.length) {
+          timeElements.forEach((timeElement) => {
+            const parentElement = timeElement.parentElement;
+            if (parentElement && parentElement.tagName === "A") {
+              const href = parentElement.getAttribute("href");
+              addDebugging(parentElement);
+              hrefArray.push(href);
+            }
+          });
+
           const seenAt = window.location.href;
 
-          const { author, statusId } = extractAuthorAndStatusId(hrefValue);
+          const { author, statusId } = extractAuthorAndStatusId(hrefArray[0]);
           const lastSeen = new Date().toString();
           const content = getTweetContent(article);
           const imageUrls = getImageUrls(article);
+          const videoPoster = getVideoPoster(article);
+          const externalLink = getExternalLink(article);
 
           const tweet = {
             author,
@@ -65,9 +99,11 @@ const observer = new IntersectionObserver(
             last_seen: lastSeen,
             content,
             image_urls: imageUrls,
+            video_poster: videoPoster,
+            external_link: externalLink,
             seen_at: seenAt,
+            interacted: seenAt.includes(statusId),
           };
-
           sendMessageToBackgroundScript({ action: "storeTweet", tweet });
         }
       }
