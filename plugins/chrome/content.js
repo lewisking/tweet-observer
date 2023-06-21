@@ -12,6 +12,7 @@ function getTweetContent(article) {
   const tweetText = tweetTextElement?.innerHTML;
   if (tweetText) {
     // Remove classes and aria labels using regular expressions
+    // @TODO don't remove links?
     const cleanTweetText = tweetText
       .replace(/<[^>]+>/g, "")
       .replace(/\s+/g, " ")
@@ -31,26 +32,21 @@ function getImageUrls(article) {
       (imageElement) => imageElement.src
     );
     return imageUrlArray;
+  } else {
+    return [];
   }
-  return [];
 }
 
+// Function to get the video poster if available
 function getVideoPoster(article) {
   const videoElement = article.querySelector("video");
-  if (videoElement) {
-    return videoElement.poster;
-  } else {
-    return "";
-  }
+  return videoElement ? videoElement.poster : "";
 }
 
+// Function to get an external link if available
 function getExternalLink(article) {
   const linkElement = article.querySelector('[data-testid*="card"] a');
-  if (linkElement) {
-    return linkElement.href;
-  } else {
-    return "";
-  }
+  return linkElement ? linkElement.href : "";
 }
 
 // Function to send a message to the background script
@@ -60,6 +56,7 @@ function sendMessageToBackgroundScript(message) {
   });
 }
 
+// Add debugging
 function addDebugging(element) {
   element.style.border = "2px solid red";
 }
@@ -79,13 +76,12 @@ const observer = new IntersectionObserver(
             const parentElement = timeElement.parentElement;
             if (parentElement && parentElement.tagName === "A") {
               const href = parentElement.getAttribute("href");
-              addDebugging(parentElement);
               hrefArray.push(href);
+              addDebugging(parentElement);
             }
           });
 
           const seenAt = window.location.href;
-
           const { author, statusId } = extractAuthorAndStatusId(hrefArray[0]);
           const lastSeen = new Date().toString();
           const content = getTweetContent(article);

@@ -9,10 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tweetsList.innerHTML = "";
 
-    if (tweets.length === 0) {
+    function createEmptyState() {
       const emptyMessage = document.createElement("p");
       emptyMessage.textContent = "No tweets stored.";
       tweetsList.appendChild(emptyMessage);
+    }
+
+    if (tweets.length === 0) {
+      createEmptyState();
     } else {
       tweets.forEach((tweet) => {
         const tweetItem = document.createElement("div");
@@ -72,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearData() {
     chrome.runtime.sendMessage({ action: "clearData" }, () => {
       console.log("Data cleared");
-      tweetsList.innerHTML = "";
+      createEmptyState();
     });
   }
 
