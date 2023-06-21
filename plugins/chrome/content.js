@@ -52,6 +52,7 @@ const observer = new IntersectionObserver(
         if (timeElement) {
           const linkElement = timeElement.parentElement;
           const hrefValue = linkElement.getAttribute("href");
+          const seenAt = window.location.href;
 
           const { author, statusId } = extractAuthorAndStatusId(hrefValue);
           const lastSeen = new Date().toString();
@@ -64,6 +65,7 @@ const observer = new IntersectionObserver(
             last_seen: lastSeen,
             content,
             image_urls: imageUrls,
+            seen_at: seenAt,
           };
 
           sendMessageToBackgroundScript({ action: "storeTweet", tweet });

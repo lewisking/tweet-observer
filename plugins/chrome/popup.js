@@ -30,10 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = document.createElement("p");
         content.textContent = `Content: ${tweet.content}`;
 
+        const seenAt = document.createElement("p");
+        seenAt.textContent = `URL seen on: ${tweet.seen_at}`;
+
         tweetItem.appendChild(author);
         tweetItem.appendChild(statusId);
         tweetItem.appendChild(lastSeen);
         tweetItem.appendChild(content);
+        tweetItem.appendChild(seenAt);
 
         if (tweet.image_urls && tweet.image_urls.length > 0) {
           tweet.image_urls.forEach((imageUrl) => {
@@ -42,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
             tweetItem.appendChild(image);
           });
         }
-        
 
         tweetsList.appendChild(tweetItem);
       });
