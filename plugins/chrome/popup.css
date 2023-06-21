@@ -1,0 +1,25 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+}
+
+button {
+  margin-bottom: 10px;
+}
+
+.tweet-item {
+  margin-bottom: 10px;
+}
+
+.tweet-item p {
+  margin: 0;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    border-radius: 30px;
+}
