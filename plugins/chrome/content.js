@@ -9,13 +9,17 @@ function extractAuthorAndStatusId(href) {
 // Function to get the content of the span inside the tweetText element
 function getTweetContent(article) {
   const tweetTextElement = article.querySelector('[data-testid="tweetText"]');
+  if (tweetTextElement) {
+    addDebugging(tweetTextElement, "orange");
+  }
   const tweetText = tweetTextElement?.innerHTML;
   if (tweetText) {
     // Remove classes and aria labels using regular expressions
     // @TODO don't remove links?
-    const cleanTweetText = tweetText
-      .replace(/<[^>]+>/g, "")
+    let cleanTweetText = tweetText
+      .replace(/<(?!\/?(a|\[)\b)[^>]+>/g, "")
       .replace(/\s+/g, " ")
+      .replace(/class="[^"]*"/g, "")
       .trim();
 
     return cleanTweetText;
@@ -28,9 +32,11 @@ function getTweetContent(article) {
 function getImageUrls(article) {
   const imageElements = article.querySelectorAll('div[aria-label="Image"] img');
   if (imageElements.length > 0) {
-    const imageUrlArray = Array.from(imageElements).map(
-      (imageElement) => imageElement.src
-    );
+    const imageUrlArray = Array.from(imageElements).map((imageElement) => {
+      addDebugging(imageElement.parentElement, 'purple');
+      return imageElement.src;
+    });
+
     return imageUrlArray;
   } else {
     return [];
@@ -40,12 +46,18 @@ function getImageUrls(article) {
 // Function to get the video poster if available
 function getVideoPoster(article) {
   const videoElement = article.querySelector("video");
+  if (videoElement) {
+    addDebugging(videoElement, "green");
+  }
   return videoElement ? videoElement.poster : "";
 }
 
 // Function to get an external link if available
 function getExternalLink(article) {
   const linkElement = article.querySelector('[data-testid*="card"] a');
+  if (linkElement) {
+    addDebugging(linkElement, "purple");
+  }
   return linkElement ? linkElement.href : "";
 }
 
@@ -57,8 +69,8 @@ function sendMessageToBackgroundScript(message) {
 }
 
 // Add debugging
-function addDebugging(element) {
-  element.style.border = "2px solid red";
+function addDebugging(element, color) {
+  element.style.border = `2px solid ${color ? color : "red"}`;
 }
 
 // Create a new Intersection Observer instance
@@ -81,7 +93,7 @@ const observer = new IntersectionObserver(
             }
           });
 
-          const seenAt = window.location.href;
+          const lastSeenAt = window.location.href;
           const { author, statusId } = extractAuthorAndStatusId(hrefArray[0]);
           const lastSeen = new Date().toString();
           const content = getTweetContent(article);
@@ -97,8 +109,8 @@ const observer = new IntersectionObserver(
             image_urls: imageUrls,
             video_poster: videoPoster,
             external_link: externalLink,
-            seen_at: seenAt,
-            interacted: seenAt.includes(statusId),
+            last_seen_on: lastSeenAt,
+            interacted: lastSeenAt.includes(statusId),
           };
           sendMessageToBackgroundScript({ action: "storeTweet", tweet });
         }
@@ -136,4 +148,18 @@ const mutationObserver = new MutationObserver((mutations) => {
 mutationObserver.observe(document.body, {
   childList: true,
   subtree: true,
+});
+
+function initAccount() {
+  console.log("🦢 Initialize account");
+  const getTestID = document.querySelector(
+    "[data-testid='UserAvatar-Container-lewisking']"
+  ).dataset.testid;
+
+  const userID = getTestID.split("-")[2];
+  console.log("userID to key all of these off is", userID);
+}
+
+window.addEventListener("load", () => {
+  initAccount();
 });

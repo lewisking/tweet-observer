@@ -31,7 +31,6 @@ function handleMessage(request, sender, sendResponse) {
       if (alreadyInteracted) {
         console.log("already interacted with tweet");
         tweets[existingTweetIndex].interacted = true;
-        console.log("Tweet set to:", tweets[existingTweetIndex]);
       }
     } else {
       tweets.push(tweet);
@@ -39,7 +38,7 @@ function handleMessage(request, sender, sendResponse) {
     }
 
     chrome.storage.local.set({ tweets });
-    sendResponse(`Tweet stored successfully ${JSON.stringify(tweet)}`);
+    sendResponse(`Tweet stored successfully`);
 
     // Update the badge count
     updateBadge();

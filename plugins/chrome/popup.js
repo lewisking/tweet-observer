@@ -2,18 +2,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const tweetsList = document.getElementById("tweets-list");
   const clearDataBtn = document.getElementById("clear-data-btn");
 
+  function createEmptyState() {
+    tweetsList.innerHTML = "";
+    const emptyMessage = document.createElement("p");
+    emptyMessage.textContent = "No tweets stored.";
+    tweetsList.appendChild(emptyMessage);
+  }
+
   // Function to render the tweets in the popup
   function renderTweets(tweets) {
     // Sort the tweets by the "Last Seen" date in descending order
     tweets.sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen));
-
-    tweetsList.innerHTML = "";
-
-    function createEmptyState() {
-      const emptyMessage = document.createElement("p");
-      emptyMessage.textContent = "No tweets stored.";
-      tweetsList.appendChild(emptyMessage);
-    }
 
     if (tweets.length === 0) {
       createEmptyState();
@@ -23,29 +22,29 @@ document.addEventListener("DOMContentLoaded", () => {
         tweetItem.classList.add("tweet-item");
 
         const author = document.createElement("p");
-        author.textContent = `Author: ${tweet.author}`;
+        author.innerHTML = `<strong>Author:</strong> ${tweet.author}`;
 
         const statusId = document.createElement("p");
-        statusId.textContent = `Status ID: ${tweet.status_id}`;
+        statusId.innerHTML = `<strong>Status ID:</strong> ${tweet.status_id}`;
 
         const interacted = document.createElement("p");
-        interacted.textContent = `Interacted: ${tweet.interacted}`;
+        interacted.innerHTML = `<strong>Interacted:</strong> ${tweet.interacted}`;
 
         const lastSeen = document.createElement("p");
-        lastSeen.textContent = `Last Seen: ${tweet.last_seen}`;
+        lastSeen.innerHTML = `<strong>Last Seen:</strong> ${tweet.last_seen}`;
 
         const content = document.createElement("p");
-        content.textContent = `Content: ${tweet.content}`;
+        content.innerHTML = `<strong>Content:</strong> ${tweet.content}`;
 
-        const seenAt = document.createElement("p");
-        seenAt.textContent = `URL seen on: ${tweet.seen_at}`;
+        const lastSeenAt = document.createElement("p");
+        lastSeenAt.innerHTML = `<strong>URL last seen on:</strong> ${tweet.last_seen_on}`;
 
         tweetItem.appendChild(author);
         tweetItem.appendChild(interacted);
         tweetItem.appendChild(statusId);
         tweetItem.appendChild(lastSeen);
         tweetItem.appendChild(content);
-        tweetItem.appendChild(seenAt);
+        tweetItem.appendChild(lastSeenAt);
 
         if (tweet.image_urls && tweet.image_urls.length > 0) {
           tweet.image_urls.forEach((imageUrl) => {
@@ -63,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (tweet.external_link) {
           const externalLink = document.createElement("p");
-          externalLink.textContent = `External link: ${tweet.external_link}`;
+          externalLink.innerHTML = `<strong>External link:</strong> ${tweet.external_link}`;
+          tweetItem.append(externalLink);
         }
 
         tweetsList.appendChild(tweetItem);
